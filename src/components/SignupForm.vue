@@ -1,10 +1,11 @@
 <template>
-  <form>
+  <form @submit.prevent="submitForm">
     <label>Email:</label>
-    <input type="email" required v-model="email" />
+    <input type="email" required v-model="email" placeholder="Enter a valid Email"/>
 
     <label>Password:</label>
-    <input type="password" required v-model="password" />
+    <input type="password" required v-model="password" placeholder="Enter a 6+ character password"/>
+    <div v-if="passwordError" class="error">{{ passwordError }}</div>
 
     <label>Role:</label>
     <select v-model="role">
@@ -13,14 +14,25 @@
       <option value="designer">Web Designer</option>
     </select>
 
+    <label>Skills:</label>
+    <input type="text" v-model="tempSkill" @keyup.alt="addSkill" />
+    <div
+      v-for="skill in skills"
+      :key="skill"
+      class="pill"
+      @click="removeSkill(skill)"
+    >
+      {{ skill }}
+    </div>
+
     <div class="terms">
-        <input type="checkbox">
-        <label>Accept Terms and Conditions</label>
+      <input type="checkbox" v-model="terms" required />
+      <label>Accept Terms and Conditions</label>
+    </div>
+    <div class="submit">
+      <button>Create an Account</button>
     </div>
   </form>
-  <p>Email: {{ email }}</p>
-  <p>Password: {{ password }}</p>
-  <p>Role: {{ role }}</p>
 </template>
 
 <script>
@@ -30,7 +42,37 @@ export default {
       email: "",
       password: "",
       role: "choose",
+      terms: false,
+      tempSkill: "",
+      skills: [],
+      passwordError: "",
     };
+  },
+  methods: {
+    addSkill(e) {
+      if (e.key === "," && this.tempSkill) {
+        if (!this.skills.includes(this.tempSkill)) {
+          this.skills.push(this.tempSkill);
+          this.tempSkill = "";
+        }
+      }
+    },
+    removeSkill(skill) {
+      this.skills = this.skills.filter((item) => item !== skill);
+    },
+    submitForm() {
+      this.passwordError =
+        this.password.length > 5
+          ? ""
+          : "Password must be at least 6 characters long";
+      if (!this.passwordError) {
+        console.log("Email: ", this.email)
+        console.log("Password: ", this.password)
+        console.log("Role: ", this.role)
+        console.log("skills: ", this.skills)
+        console.log("Terms accepted: ", this.terms)
+      }
+    },
   },
 };
 </script>
@@ -55,7 +97,8 @@ label {
   font-weight: bold;
 }
 
-input, select {
+input,
+select {
   display: block;
   padding: 10px 6px;
   width: 100%;
@@ -66,10 +109,43 @@ input, select {
 }
 
 input[type="checkbox"] {
-    display: inline-block;
-    width: 16px;
-    margin: 0 10px 0 0;
-    position: relative;
-    top: 2px;
+  display: inline-block;
+  width: 16px;
+  margin: 0 10px 0 0;
+  position: relative;
+  top: 2px;
+}
+
+.pill {
+  display: inline-block;
+  margin: 20px 10px 0 0;
+  padding: 6px 12px;
+  background: #eee;
+  border-radius: 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: bold;
+  color: #777;
+  cursor: pointer;
+}
+
+button {
+  background: #0b6dff;
+  border: 0;
+  padding: 10px 20px;
+  margin-top: 20px;
+  color: white;
+  border-radius: 20px;
+}
+
+.submit {
+  text-align: center;
+}
+
+.error {
+  color: #ff0062;
+  margin-top: 10px;
+  font-size: 0.8em;
+  font-weight: bold;
 }
 </style>
